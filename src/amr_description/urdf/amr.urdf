@@ -122,6 +122,10 @@
 
       <param name="wheel_radius">0.09</param>
 
+      <param name="left_invert">false</param>
+
+      <param name="right_invert">true</param>
+
       <param name="fix_din3">true</param>
 
       <param name="sdo_timeout_ms">20</param>

@@ -145,6 +145,9 @@ private:
     double left_wheel_command_ = 0.0;
     double right_wheel_command_ = 0.0;
 
+    double left_sign_ = 1.0;
+    double right_sign_ = 1.0;
+
     //--------------------------------------------------
     // Robot Parameters
     //--------------------------------------------------

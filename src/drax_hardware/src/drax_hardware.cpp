@@ -93,6 +93,8 @@ DraxHardware::on_init(const hardware_interface::HardwareInfo & info)
         right_node_id_ = static_cast<uint8_t>(intParamOr(info_, "right_node_id", 2));
         encoder_resolution_ = doubleParamOr(info_, "encoder_resolution", 4096.0);
         wheel_radius_ = doubleParamOr(info_, "wheel_radius", 0.09);
+        left_sign_ = boolParamOr(info_, "left_invert", false) ? -1.0 : 1.0;
+        right_sign_ = boolParamOr(info_, "right_invert", false) ? -1.0 : 1.0;
 
         motor_config_.feedback_resolution = intParamOr(info_, "feedback_resolution", 4096);
         motor_config_.fix_din3 = boolParamOr(info_, "fix_din3", true);
@@ -343,8 +345,8 @@ DraxHardware::read(const rclcpp::Time &, const rclcpp::Duration & period)
     left_encoder_ = left_ticks;
     right_encoder_ = right_ticks;
 
-    const double left_delta_rad = delta_left * 2.0 * PI / encoder_resolution_;
-    const double right_delta_rad = delta_right * 2.0 * PI / encoder_resolution_;
+    const double left_delta_rad = left_sign_ * delta_left * 2.0 * PI / encoder_resolution_;
+    const double right_delta_rad = right_sign_ * delta_right * 2.0 * PI / encoder_resolution_;
 
     left_wheel_position_ += left_delta_rad;
     right_wheel_position_ += right_delta_rad;
@@ -364,8 +366,10 @@ DraxHardware::read(const rclcpp::Time &, const rclcpp::Duration & period)
 hardware_interface::return_type
 DraxHardware::write(const rclcpp::Time &, const rclcpp::Duration &)
 {
-    const int left_rpm = static_cast<int>(left_wheel_command_ * 60.0 / (2.0 * PI));
-    const int right_rpm = static_cast<int>(right_wheel_command_ * 60.0 / (2.0 * PI));
+    const int left_rpm = static_cast<int>(
+        left_sign_ * left_wheel_command_ * 60.0 / (2.0 * PI));
+    const int right_rpm = static_cast<int>(
+        right_sign_ * right_wheel_command_ * 60.0 / (2.0 * PI));
 
     RCLCPP_DEBUG(
         logger(),
